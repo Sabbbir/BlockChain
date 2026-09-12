@@ -1,0 +1,167 @@
+{
+  "timestamp": "2026-08-04T04:06:22.079Z",
+  "network": "localhost",
+  "deployment": {
+    "AuditLogger": {
+      "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+      "gasUsed": 340940,
+      "duration_ms": 40.70450800000003
+    },
+    "RoleManager": {
+      "address": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+      "gasUsed": 1029922,
+      "duration_ms": 15.796813000000043
+    },
+    "MedicalRecord": {
+      "address": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+      "gasUsed": 1556549,
+      "duration_ms": 14.210664000000008
+    }
+  },
+  "transactions": {
+    "registerPatient": {
+      "gasUsed": 121795,
+      "duration_ms": 5.308321999999976,
+      "txHash": "0x1bae8fd9a12a392c3d78d1c1fda59e0ebf206ba99e7e4010c606d58e9066029e"
+    },
+    "requestHospitalRegistration": {
+      "gasUsed": 46845,
+      "duration_ms": 4.244506999999999,
+      "txHash": "0xbed70cb9e85538b55a4ed5e0a6308e369657c71d6d788dc6a7c341b63deeb16f"
+    },
+    "approveHospital": {
+      "gasUsed": 128299,
+      "duration_ms": 4.29571500000003,
+      "txHash": "0x9adef5c35b6e92bb59f3ffcd65d2639208be0208693da3b5e6ab98d6c955b6af"
+    },
+    "registerDoctor": {
+      "gasUsed": 147356,
+      "duration_ms": 4.724401,
+      "txHash": "0x2845bca46d6f321acf702c94fec75fc37ac2ab516fb385975076212808c5841e"
+    },
+    "uploadRecord": {
+      "avg_gas": 178080,
+      "avg_duration_ms": 8.986578666666674,
+      "samples": [
+        {
+          "gasUsed": 200880,
+          "duration_ms": 6.581567000000007,
+          "txHash": "0x8afb02cbb8d879f3459c1b9c6982f701d3bedd798dc71e5442f849ae07c59ed6"
+        },
+        {
+          "gasUsed": 166680,
+          "duration_ms": 5.527415000000019,
+          "txHash": "0x6f28da7bd85ed45974dc00bb08e4cf5d7d1556f2400da00d4dfdfb1c6cf7434f"
+        },
+        {
+          "gasUsed": 166680,
+          "duration_ms": 14.850753999999995,
+          "txHash": "0x126bce661c8f40fafd90eba67feae1c41d46760fa41e93c0c242153bcac019f6"
+        }
+      ]
+    },
+    "grantAccess": {
+      "gasUsed": 132411,
+      "duration_ms": 7.061505000000011,
+      "txHash": "0xffbf004aa86d4ee259fc0a6e46ec36cfb34530e39d430b5c7afddadc928ca92b"
+    },
+    "grantAccess2": {
+      "gasUsed": 98223,
+      "duration_ms": 9.569482999999991,
+      "txHash": "0x6dbdd8f2abccc65696ce7795591b9015f36e0ae22f26ac0d1e4519101ae320f6"
+    },
+    "getRecords": {
+      "gasUsed": 75633,
+      "duration_ms": 4.648681999999951,
+      "txHash": "0xd4d47470b2ac3f6ab86af6b22c62a15b6aa883ae8db11cf769478e96be2aa070"
+    },
+    "revokeAccess": {
+      "gasUsed": 49378,
+      "duration_ms": 4.229722999999979,
+      "txHash": "0x8ea1ae14801758b16af993017b1c4571ba1496c5c94ac4e33da60dd13156a2b5"
+    },
+    "getSystemStats": {
+      "duration_ms": 2.8780689999999822,
+      "gasUsed": 0,
+      "note": "View function (no gas cost)",
+      "result": {
+        "admins": 1,
+        "hospitals": 1,
+        "doctors": 2,
+        "patients": 2
+      }
+    }
+  },
+  "summary": {
+    "gasPrice_gwei": 20,
+    "ethPrice_usd": 3500,
+    "costBreakdown": [
+      {
+        "operation": "registerPatient",
+        "gas": 121795,
+        "costEth": "0.002436",
+        "costUsd": "8.5257",
+        "latency": "5.3"
+      },
+      {
+        "operation": "requestHospitalRegistration",
+        "gas": 46845,
+        "costEth": "0.000937",
+        "costUsd": "3.2792",
+        "latency": "4.2"
+      },
+      {
+        "operation": "approveHospital",
+        "gas": 128299,
+        "costEth": "0.002566",
+        "costUsd": "8.9809",
+        "latency": "4.3"
+      },
+      {
+        "operation": "registerDoctor",
+        "gas": 147356,
+        "costEth": "0.002947",
+        "costUsd": "10.3149",
+        "latency": "4.7"
+      },
+      {
+        "operation": "uploadRecord",
+        "gas": 178080,
+        "costEth": "0.003562",
+        "costUsd": "12.4656",
+        "latency": "9.0"
+      },
+      {
+        "operation": "grantAccess",
+        "gas": 132411,
+        "costEth": "0.002648",
+        "costUsd": "9.2688",
+        "latency": "7.1"
+      },
+      {
+        "operation": "grantAccess2",
+        "gas": 98223,
+        "costEth": "0.001964",
+        "costUsd": "6.8756",
+        "latency": "9.6"
+      },
+      {
+        "operation": "getRecords",
+        "gas": 75633,
+        "costEth": "0.001513",
+        "costUsd": "5.2943",
+        "latency": "4.6"
+      },
+      {
+        "operation": "revokeAccess",
+        "gas": 49378,
+        "costEth": "0.000988",
+        "costUsd": "3.4565",
+        "latency": "4.2"
+      }
+    ],
+    "totalDeploymentGas": 2927411,
+    "totalDeploymentCostEth": "0.058548",
+    "totalDeploymentCostUsd": "204.9188"
+  }
+}

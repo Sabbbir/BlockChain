@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Encryption Benchmark — Healthcare DApp</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+    h2 { font-size: 1.2rem; color: #818cf8; margin: 1.5rem 0 0.75rem; }
+    .subtitle { color: #64748b; margin-bottom: 2rem; }
+    .card {
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      backdrop-filter: blur(20px);
+    }
+    button {
+      background: linear-gradient(to right, #4f46e5, #6366f1);
+      color: white;
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 0.75rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    button:hover { filter: brightness(1.1); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      text-align: left;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 0.875rem;
+    }
+    th {
+      color: #64748b;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .highlight { color: #34d399; font-weight: 600; }
+    .mono { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; }
+    .progress {
+      background: #1e293b;
+      border-radius: 0.5rem;
+      height: 0.5rem;
+      overflow: hidden;
+      margin: 0.5rem 0;
+    }
+    .progress-bar {
+      background: linear-gradient(to right, #6366f1, #34d399);
+      height: 100%;
+      border-radius: 0.5rem;
+      transition: width 0.3s;
+    }
+    #status { margin: 1rem 0; color: #94a3b8; }
+    .download-btn {
+      background: linear-gradient(to right, #059669, #10b981);
+      margin-top: 1rem;
+      display: inline-block;
+      text-decoration: none;
+      color: white;
+      padding: 0.75rem 2rem;
+      border-radius: 0.75rem;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔐 Encryption/Decryption Benchmark</h1>
+  <p class="subtitle">Measures AES-256-GCM performance across different file sizes using the Web Crypto API.</p>
+
+  <div class="card">
+    <h2>Configuration</h2>
+    <p style="margin-bottom: 1rem; color: #94a3b8;">
+      Generates random data of various sizes and measures encrypt/decrypt times.
+    </p>
+    <label style="display: block; margin-bottom: 0.5rem; color: #94a3b8;">
+      Iterations per size:
+      <input type="number" id="iterations" value="5" min="1" max="50"
+        style="background: #1e293b; border: 1px solid rgba(255,255,255,0.1); color: white; padding: 0.5rem; border-radius: 0.5rem; width: 80px; margin-left: 0.5rem;">
+    </label>
+    <button id="startBtn" onclick="runBenchmark()">▶️ Run Benchmark</button>
+    <div id="status"></div>
+    <div class="progress" id="progressContainer" style="display: none;">
+      <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+    </div>
+  </div>
+
+  <div class="card" id="resultsCard" style="display: none;">
+    <h2>Results</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>File Size</th>
+          <th>Avg Encrypt (ms)</th>
+          <th>Avg Decrypt (ms)</th>
+          <th>Min Encrypt</th>
+          <th>Max Encrypt</th>
+          <th>Throughput (MB/s)</th>
+        </tr>
+      </thead>
+      <tbody id="resultsBody"></tbody>
+    </table>
+    <div id="downloadContainer"></div>
+  </div>
+
+  <script>
+    const FILE_SIZES = [
+      { label: "100 KB", bytes: 100 * 1024 },
+      { label: "500 KB", bytes: 500 * 1024 },
+      { label: "1 MB", bytes: 1 * 1024 * 1024 },
+      { label: "2 MB", bytes: 2 * 1024 * 1024 },
+      { label: "5 MB", bytes: 5 * 1024 * 1024 },
+      { label: "10 MB", bytes: 10 * 1024 * 1024 },
+    ];
+
+    async function generateKey() {
+      return await crypto.subtle.generateKey(
+        { name: "AES-GCM", length: 256 },
+        true,
+        ["encrypt", "decrypt"]
+      );
+    }
+
+    async function encryptData(data, key) {
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const start = performance.now();
+      const ciphertext = await crypto.subtle.encrypt(
+        { name: "AES-GCM", iv },
+        key,
+        data
+      );
+      const time = performance.now() - start;
+
+      const result = new Uint8Array(iv.length + ciphertext.byteLength);
+      result.set(iv, 0);
+      result.set(new Uint8Array(ciphertext), iv.length);
+
+      return { encrypted: result, time };
+    }
+
+    async function decryptData(encryptedData, key) {
+      const iv = encryptedData.slice(0, 12);
+      const ciphertext = encryptedData.slice(12);
+      const start = performance.now();
+      const decrypted = await crypto.subtle.decrypt(
+        { name: "AES-GCM", iv },
+        key,
+        ciphertext
+      );
+      const time = performance.now() - start;
+      return { decrypted, time };
+    }
+
+    async function runBenchmark() {
+      const iterations = parseInt(document.getElementById("iterations").value);
+      const startBtn = document.getElementById("startBtn");
+      const status = document.getElementById("status");
+      const progressContainer = document.getElementById("progressContainer");
+      const progressBar = document.getElementById("progressBar");
+      const resultsCard = document.getElementById("resultsCard");
+      const resultsBody = document.getElementById("resultsBody");
+
+      startBtn.disabled = true;
+      progressContainer.style.display = "block";
+      resultsBody.innerHTML = "";
+      resultsCard.style.display = "none";
+
+      const allResults = [];
+      const totalSteps = FILE_SIZES.length * iterations;
+      let currentStep = 0;
+
+      for (const size of FILE_SIZES) {
+        status.textContent = `Testing ${size.label}...`;
+        const encryptTimes = [];
+        const decryptTimes = [];
+
+        const key = await generateKey();
+
+        for (let i = 0; i < iterations; i++) {
+          // Generate random data
+          const data = crypto.getRandomValues(new Uint8Array(size.bytes));
+
+          // Encrypt
+          const encResult = await encryptData(data.buffer, key);
+          encryptTimes.push(encResult.time);
+
+          // Decrypt
+          const decResult = await decryptData(encResult.encrypted, key);
+          decryptTimes.push(decResult.time);
+
+          currentStep++;
+          progressBar.style.width = `${(currentStep / totalSteps) * 100}%`;
+
+          // Yield to UI
+          await new Promise((r) => setTimeout(r, 10));
+        }
+
+        const avgEncrypt = encryptTimes.reduce((a, b) => a + b) / iterations;
+        const avgDecrypt = decryptTimes.reduce((a, b) => a + b) / iterations;
+        const minEncrypt = Math.min(...encryptTimes);
+        const maxEncrypt = Math.max(...encryptTimes);
+        const throughput = (size.bytes / 1024 / 1024) / (avgEncrypt / 1000);
+
+        const result = {
+          size: size.label,
+          sizeBytes: size.bytes,
+          avgEncryptMs: avgEncrypt,
+          avgDecryptMs: avgDecrypt,
+          minEncryptMs: minEncrypt,
+          maxEncryptMs: maxEncrypt,
+          throughputMBps: throughput,
+          iterations,
+        };
+        allResults.push(result);
+
+        // Add to table
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td class="highlight">${size.label}</td>
+          <td class="mono">${avgEncrypt.toFixed(2)}</td>
+          <td class="mono">${avgDecrypt.toFixed(2)}</td>
+          <td class="mono">${minEncrypt.toFixed(2)}</td>
+          <td class="mono">${maxEncrypt.toFixed(2)}</td>
+          <td class="mono highlight">${throughput.toFixed(1)}</td>
+        `;
+        resultsBody.appendChild(row);
+      }
+
+      resultsCard.style.display = "block";
+      status.textContent = "✅ Benchmark complete!";
+      startBtn.disabled = false;
+
+      // Create CSV download
+      const csv = [
+        "File Size,Size (bytes),Avg Encrypt (ms),Avg Decrypt (ms),Min Encrypt (ms),Max Encrypt (ms),Throughput (MB/s),Iterations",
+        ...allResults.map(
+          (r) =>
+            `${r.size},${r.sizeBytes},${r.avgEncryptMs.toFixed(2)},${r.avgDecryptMs.toFixed(2)},${r.minEncryptMs.toFixed(2)},${r.maxEncryptMs.toFixed(2)},${r.throughputMBps.toFixed(1)},${r.iterations}`
+        ),
+      ].join("\n");
+
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      document.getElementById("downloadContainer").innerHTML = `
+        <a href="${url}" download="encryption_benchmark.csv" class="download-btn">
+          ⬇️ Download CSV Results
+        </a>
+      `;
+    }
+  </script>
+</body>
+</html>

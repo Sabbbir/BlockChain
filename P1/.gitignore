@@ -1,0 +1,25 @@
+node_modules
+.env
+cache
+artifacts
+typechain-types
+coverage
+coverage.json
+gasReporterOutput.json
+ignition/deployments
+
+# Next.js
+frontend/.next
+frontend/node_modules
+
+# Database
+server/*.db
+server/*.db-shm
+server/*.db-wal
+
+# OS
+.DS_Store
+
+# Ignore specific files
+basic.txt
+Files/
