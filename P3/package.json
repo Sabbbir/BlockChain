@@ -1,0 +1,19 @@
+{
+  "name": "blockchain-banking-system",
+  "version": "1.0.0",
+  "description": "Blockchain-Based Secure Banking Transaction System",
+  "main": "index.js",
+  "scripts": {
+    "test": "hardhat test"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.22.0",
+    "ethers": "^6.10.0"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5"
+  }
+}

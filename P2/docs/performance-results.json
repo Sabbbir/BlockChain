@@ -1,0 +1,88 @@
+{
+  "deployment": {
+    "gasUsed": "2821925",
+    "gasPriceGwei": "1.107421875",
+    "costETH": "0.003125061474609375",
+    "latencyMs": "11.75"
+  },
+  "gasByFunction": {
+    "registerUniversity": {
+      "gasUsed": "163658",
+      "costETH": "0.000160714648674998"
+    },
+    "registerStudent": {
+      "gasUsed": "187628",
+      "costETH": "0.000161347503670416"
+    },
+    "issueCertificate": {
+      "gasUsed": "329138",
+      "costETH": "0.000247878314609216"
+    },
+    "revokeCertificate": {
+      "gasUsed": "34665",
+      "costETH": "0.000022879151494575"
+    },
+    "deactivateUniversity": {
+      "gasUsed": "30955",
+      "costETH": "0.00001787965994249"
+    }
+  },
+  "issuanceLatency": {
+    "avgMs": "1.46",
+    "minMs": "0.95",
+    "maxMs": "3.36",
+    "samples": 20
+  },
+  "verificationLatency": {
+    "avgMs": "0.59",
+    "minMs": "0.42",
+    "maxMs": "1.69",
+    "samples": 20
+  },
+  "blockConfirmation": {
+    "avgMs": "1.58",
+    "samples": 10
+  },
+  "throughput": {
+    "totalTransactions": 50,
+    "durationSec": "0.124",
+    "tps": "401.92"
+  },
+  "successRate": {
+    "total": 30,
+    "successful": 30,
+    "failed": 0,
+    "rate": "100.00%",
+    "expectedRejections": "3/3"
+  },
+  "scalability": [
+    {
+      "volume": 10,
+      "totalTimeSec": "0.022",
+      "tps": "463.96",
+      "avgGasPerCert": "268683",
+      "totalGas": "2686830"
+    },
+    {
+      "volume": 50,
+      "totalTimeSec": "0.120",
+      "tps": "415.65",
+      "avgGasPerCert": "267353",
+      "totalGas": "13367670"
+    },
+    {
+      "volume": 100,
+      "totalTimeSec": "0.224",
+      "tps": "447.16",
+      "avgGasPerCert": "267216",
+      "totalGas": "26721660"
+    },
+    {
+      "volume": 200,
+      "totalTimeSec": "0.505",
+      "tps": "396.12",
+      "avgGasPerCert": "267157",
+      "totalGas": "53431560"
+    }
+  ]
+}

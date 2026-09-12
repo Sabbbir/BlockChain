@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Certificate Verification System</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        
+        <!-- Mobile Menu Button -->
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-certificate" style="color: white;"></i>
+                    </div>
+                    <div>
+                        <div class="logo-text">CertiBlock</div>
+                        <div class="logo-subtitle">Academic Verification</div>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Main</div>
+                <a href="#/" class="nav-link active" data-page="dashboard">
+                    <div class="nav-icon"><i class="fas fa-chart-pie"></i></div>
+                    Dashboard
+                </a>
+                <a href="#/verify" class="nav-link" data-page="verify">
+                    <div class="nav-icon"><i class="fas fa-search"></i></div>
+                    Verify Certificate
+                </a>
+                <a href="#/qr" class="nav-link" data-page="qr">
+                    <div class="nav-icon"><i class="fas fa-qrcode"></i></div>
+                    QR Generator
+                </a>
+
+                <div class="nav-section-title">Portals</div>
+                <a href="#/admin" class="nav-link" data-page="admin" id="navAdmin">
+                    <div class="nav-icon"><i class="fas fa-shield-alt"></i></div>
+                    Admin Portal
+                </a>
+                <a href="#/university" class="nav-link" data-page="university" id="navUniversity">
+                    <div class="nav-icon"><i class="fas fa-university"></i></div>
+                    University Portal
+                </a>
+
+                <div class="nav-section-title">System</div>
+                <a href="#/performance" class="nav-link" data-page="performance">
+                    <div class="nav-icon"><i class="fas fa-tachometer-alt"></i></div>
+                    Performance
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="wallet-status" id="walletConnectBtn">
+                    <div class="wallet-dot" id="walletDot"></div>
+                    <div class="wallet-info">
+                        <div class="wallet-label">MetaMask</div>
+                        <div class="wallet-address" id="walletAddressDisplay">Not Connected</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="page-header">
+                <h1 class="page-title" id="pageTitle">Dashboard</h1>
+                <p class="page-subtitle" id="pageSubtitle">System overview and statistics</p>
+            </header>
+
+            <div class="page-body" id="app">
+                <!-- Page content will be dynamically injected here -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Scripts -->
+    <script type="module" src="./js/app.js"></script>
+</body>
+</html>
