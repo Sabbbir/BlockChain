@@ -1,7 +1,7 @@
 # Performance Evaluation Report
 ## Blockchain-Based Academic Certificate Verification System
 
-**Generated:** 2026-08-07T09:54:17.015Z
+**Generated:** 2026-09-14T18:47:41.412Z
 
 ---
 
@@ -9,10 +9,10 @@
 
 | Metric | Value |
 |--------|-------|
-| Gas Used | 2821925 |
+| Gas Used | 2781802 |
 | Gas Price | 1.107421875 gwei |
-| Cost | 0.003125061474609375 ETH |
-| Deployment Latency | 11.75 ms |
+| Cost | 0.00308062838671875 ETH |
+| Deployment Latency | 12.02 ms |
 
 ---
 
@@ -20,11 +20,11 @@
 
 | Function | Gas Used | Cost (ETH) |
 |----------|----------|------------|
-| registerUniversity | 163658 | 0.000160714648674998 |
-| registerStudent | 187628 | 0.000161347503670416 |
-| issueCertificate | 329138 | 0.000247878314609216 |
-| revokeCertificate | 34665 | 0.000022879151494575 |
-| deactivateUniversity | 30955 | 0.00001787965994249 |
+| registerUniversity | 163675 | 0.0001607010403081 |
+| registerStudent | 187701 | 0.000161379861267219 |
+| issueCertificate | 329151 | 0.000247841477226621 |
+| revokeCertificate | 34665 | 0.00002287484932542 |
+| deactivateUniversity | 30955 | 0.00001787629785803 |
 
 ---
 
@@ -32,9 +32,9 @@
 
 | Metric | Value |
 |--------|-------|
-| Average | 1.46 ms |
-| Minimum | 0.95 ms |
-| Maximum | 3.36 ms |
+| Average | 1.12 ms |
+| Minimum | 0.81 ms |
+| Maximum | 2.54 ms |
 | Samples | 20 |
 
 ---
@@ -43,9 +43,9 @@
 
 | Metric | Value |
 |--------|-------|
-| Average | 0.59 ms |
-| Minimum | 0.42 ms |
-| Maximum | 1.69 ms |
+| Average | 0.46 ms |
+| Minimum | 0.31 ms |
+| Maximum | 1.67 ms |
 | Samples | 20 |
 
 ---
@@ -54,7 +54,7 @@
 
 | Metric | Value |
 |--------|-------|
-| Average | 1.58 ms |
+| Average | 0.94 ms |
 | Samples | 10 |
 
 ---
@@ -64,8 +64,8 @@
 | Metric | Value |
 |--------|-------|
 | Total Transactions | 50 |
-| Duration | 0.124 s |
-| Throughput | 401.92 TPS |
+| Duration | 0.130 s |
+| Throughput | 384.38 TPS |
 
 ---
 
@@ -77,7 +77,7 @@
 | Successful | 30 |
 | Failed | 0 |
 | Success Rate | 100.00% |
-| Correct Rejections | 3/3 |
+| Correct Rejections | 2/3 |
 
 ---
 
@@ -85,10 +85,10 @@
 
 | Volume | Total Time (s) | TPS | Avg Gas/Cert | Total Gas |
 |--------|----------------|-----|--------------|-----------|
-| 10 | 0.022 | 463.96 | 268683 | 2686830 |
-| 50 | 0.120 | 415.65 | 267353 | 13367670 |
-| 100 | 0.224 | 447.16 | 267216 | 26721660 |
-| 200 | 0.505 | 396.12 | 267157 | 53431560 |
+| 10 | 0.019 | 537.90 | 268696 | 2686960 |
+| 50 | 0.096 | 521.59 | 267366 | 13368320 |
+| 100 | 0.168 | 593.80 | 267229 | 26722960 |
+| 200 | 0.306 | 653.01 | 267170 | 53434160 |
 
 ---
 

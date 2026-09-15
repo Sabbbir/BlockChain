@@ -118,7 +118,15 @@ function ViewRecords() {
 
     try {
       const startTime = performance.now();
-      const recs = await medicalRecord.getRecords(patientAddress);
+      
+      // First, get the records array without sending a transaction
+      const recs = await medicalRecord.getRecords.staticCall(patientAddress);
+      
+      // Send the transaction to log the access on the blockchain
+      const tx = await medicalRecord.getRecords(patientAddress);
+      // We don't await tx.wait() here so the UI updates quickly, 
+      // but the Metamask popup will still happen for the audit log.
+
       const duration = performance.now() - startTime;
 
       await logMetric({

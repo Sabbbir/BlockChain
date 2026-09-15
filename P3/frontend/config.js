@@ -12,5 +12,6 @@ const CONTRACT_ABI = [
   // Admin Functions
   "function getAllCustomers() view returns (address[])",
   "function getCustomerDetails(address _customer) view returns (string memory, bool, uint256)",
-  "function getContractBalance() view returns (uint256)"
+  "function getContractBalance() view returns (uint256)",
+  "function getAllTransactions() view returns (tuple(uint256 id, address user, uint8 txType, uint256 amount, uint256 timestamp, address relatedParty)[])"
 ];

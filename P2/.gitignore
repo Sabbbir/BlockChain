@@ -1,7 +1,0 @@
-node_modules/
-.DS_Store
-basic.txt
-blockchain/artifacts/
-blockchain/cache/
-blockchain/typechain-types/
-frontend/dist/

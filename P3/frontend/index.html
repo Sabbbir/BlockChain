@@ -3,134 +3,255 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure Blockchain Banking</title>
+    <title>BlockBank | Premium Blockchain Banking</title>
     <link rel="stylesheet" href="style.css">
     <!-- Ethers.js from CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js" type="application/javascript"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="app-container">
-        <!-- Sidebar Navigation -->
-        <nav class="sidebar">
-            <div class="logo">
-                <h2>BlockBank</h2>
+        
+        <!-- Welcome Overlay (Shown before connection) -->
+        <div id="welcome-overlay" class="welcome-overlay fade-in">
+            <div class="welcome-card glass">
+                <div class="logo-large">
+                    <div class="logo-icon"></div>
+                    <h2>BlockBank</h2>
+                </div>
+                <p>Welcome to the future of secure, decentralized banking. Connect your wallet to access your account or register as a new customer.</p>
+                <button id="connect-btn" class="btn primary glow-effect">Connect MetaMask</button>
             </div>
-            <ul class="nav-links">
-                <li class="active" onclick="showTab('dashboard')">Dashboard</li>
-                <li onclick="showTab('transfer')">Transfer</li>
-                <li onclick="showTab('history')">History</li>
-                <li onclick="showTab('admin')" id="admin-tab" style="display: none;">Admin Panel</li>
-            </ul>
-        </nav>
+        </div>
 
-        <!-- Main Content Area -->
-        <main class="main-content">
-            <header>
-                <h1>Welcome to BlockBank</h1>
-                <div class="wallet-info">
-                    <button id="connect-btn" class="btn primary">Connect Wallet</button>
-                    <span id="user-address" class="address-display">Not Connected</span>
+        <!-- Main App Content (Hidden until connected) -->
+        <div id="app-content" class="app-content" style="display: none;">
+            
+            <!-- Sidebar Navigation -->
+            <nav class="sidebar glass-panel">
+                <div class="logo">
+                    <div class="logo-icon small"></div>
+                    <h2>BlockBank</h2>
                 </div>
-            </header>
-
-            <!-- Registration Section -->
-            <section id="registration-section" class="card fade-in" style="display: none;">
-                <h3>Register as Customer</h3>
-                <p>You need to register before using the banking services.</p>
-                <div class="input-group">
-                    <input type="text" id="reg-name" placeholder="Enter Full Name">
-                    <button id="reg-btn" class="btn primary">Register Account</button>
+                <div class="user-profile">
+                    <div class="avatar"></div>
+                    <div class="user-details">
+                        <span id="role-badge" class="role-badge badge-customer">Customer</span>
+                        <span id="user-address" class="address-display">0x...</span>
+                    </div>
                 </div>
-            </section>
-
-            <!-- Dashboard Tab -->
-            <section id="dashboard" class="tab-content active fade-in">
-                <div class="balance-card glass">
-                    <h3>Account Balance</h3>
-                    <h1 id="account-balance">0.00 ETH</h1>
+                
+                <ul class="nav-links">
+                    <!-- Customer Links -->
+                    <li class="customer-only active" data-tab="dashboard">
+                        <span class="nav-icon">📊</span> Dashboard
+                    </li>
+                    <li class="customer-only" data-tab="transfer">
+                        <span class="nav-icon">💸</span> Transfer
+                    </li>
+                    <li class="customer-only" data-tab="history">
+                        <span class="nav-icon">📋</span> History
+                    </li>
+                    
+                    <!-- Admin Links -->
+                    <li class="admin-only active" data-tab="admin" style="display: none;">
+                        <span class="nav-icon">🛡️</span> Admin Panel
+                    </li>
+                </ul>
+                
+                <div class="sidebar-footer">
+                    <p class="status-indicator"><span class="dot online"></span> Connected to Hardhat</p>
                 </div>
+            </nav>
 
-                <div class="action-cards">
-                    <div class="card glass">
-                        <h3>Deposit Funds</h3>
-                        <div class="input-group">
-                            <input type="number" id="deposit-amount" placeholder="Amount in ETH" step="0.01">
-                            <button id="deposit-btn" class="btn success">Deposit</button>
+            <!-- Main Content Area -->
+            <main class="main-content">
+                <header class="top-header">
+                    <h1 class="customer-only">Welcome back, <span id="user-name-display" class="gradient-text">Customer</span></h1>
+                    <h1 class="admin-only" style="display: none;">System <span class="gradient-text">Administration</span></h1>
+                </header>
+
+                <!-- Registration Section -->
+                <section id="registration-section" class="tab-content fade-in" style="display: none;">
+                    <div class="registration-wrapper">
+                        <div class="card glass hero-card">
+                            <div class="hero-content">
+                                <h3>Create Your Account</h3>
+                                <p>Join BlockBank to start managing your assets securely on the blockchain. Registration is quick and requires a small gas fee.</p>
+                                <div class="input-group vertical">
+                                    <label>Full Legal Name</label>
+                                    <input type="text" id="reg-name" placeholder="e.g. John Doe">
+                                    <button id="reg-btn" class="btn primary glow-effect mt-2">Open Account</button>
+                                </div>
+                            </div>
+                            <div class="hero-image">
+                                <div class="abstract-shape"></div>
+                            </div>
                         </div>
                     </div>
-                    <div class="card glass">
-                        <h3>Withdraw Funds</h3>
-                        <div class="input-group">
-                            <input type="number" id="withdraw-amount" placeholder="Amount in ETH" step="0.01">
-                            <button id="withdraw-btn" class="btn danger">Withdraw</button>
+                </section>
+
+                <!-- Dashboard Tab (Customer) -->
+                <section id="dashboard" class="tab-content active fade-in customer-only">
+                    <div class="balance-card glass gradient-border">
+                        <div class="balance-header">
+                            <h3>Total Balance</h3>
+                            <div class="currency-badge">ETH</div>
+                        </div>
+                        <h1 id="account-balance" class="balance-amount">0.0000</h1>
+                        <p class="balance-subtitle">Available Funds</p>
+                    </div>
+
+                    <div class="action-cards">
+                        <div class="card glass hover-lift">
+                            <div class="card-header">
+                                <div class="icon-wrapper success-bg">↓</div>
+                                <h3>Deposit</h3>
+                            </div>
+                            <p class="card-desc">Add funds to your account from your wallet.</p>
+                            <div class="input-group">
+                                <input type="number" id="deposit-amount" placeholder="0.00" step="0.01">
+                                <span class="input-suffix">ETH</span>
+                            </div>
+                            <button id="deposit-btn" class="btn success full-width mt-2">Confirm Deposit</button>
+                        </div>
+                        
+                        <div class="card glass hover-lift">
+                            <div class="card-header">
+                                <div class="icon-wrapper danger-bg">↑</div>
+                                <h3>Withdraw</h3>
+                            </div>
+                            <p class="card-desc">Transfer funds back to your wallet.</p>
+                            <div class="input-group">
+                                <input type="number" id="withdraw-amount" placeholder="0.00" step="0.01">
+                                <span class="input-suffix">ETH</span>
+                            </div>
+                            <button id="withdraw-btn" class="btn danger full-width mt-2">Confirm Withdrawal</button>
                         </div>
                     </div>
-                </div>
-            </section>
+                </section>
 
-            <!-- Transfer Tab -->
-            <section id="transfer" class="tab-content fade-in" style="display: none;">
-                <div class="card glass transfer-card">
-                    <h3>Transfer Funds</h3>
-                    <div class="form-group">
-                        <label>Recipient Address</label>
-                        <input type="text" id="transfer-to" placeholder="0x...">
+                <!-- Transfer Tab (Customer) -->
+                <section id="transfer" class="tab-content fade-in customer-only" style="display: none;">
+                    <div class="card glass transfer-card centered-card">
+                        <div class="card-header center">
+                            <div class="icon-wrapper primary-bg lg">💸</div>
+                            <h3>Send Funds</h3>
+                            <p class="card-desc">Transfer ETH instantly to another registered customer.</p>
+                        </div>
+                        
+                        <div class="form-group mt-2">
+                            <label>Recipient Wallet Address</label>
+                            <input type="text" id="transfer-to" placeholder="0x..." class="styled-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Amount</label>
+                            <div class="input-group">
+                                <input type="number" id="transfer-amount" placeholder="0.00" step="0.01" class="styled-input">
+                                <span class="input-suffix">ETH</span>
+                            </div>
+                        </div>
+                        
+                        <div class="transfer-summary">
+                            <div class="summary-row">
+                                <span>Network Fee</span>
+                                <span>Standard Gas</span>
+                            </div>
+                        </div>
+                        
+                        <button id="transfer-btn" class="btn primary full-width glow-effect mt-2">Send Transfer</button>
                     </div>
-                    <div class="form-group">
-                        <label>Amount (ETH)</label>
-                        <input type="number" id="transfer-amount" placeholder="0.00" step="0.01">
+                </section>
+
+                <!-- History Tab (Customer) -->
+                <section id="history" class="tab-content fade-in customer-only" style="display: none;">
+                    <div class="card glass table-card">
+                        <div class="card-header">
+                            <h3>Transaction History</h3>
+                            <button class="btn icon-btn" onclick="loadHistory()">↻</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Transaction Type</th>
+                                        <th>Amount</th>
+                                        <th>Date & Time</th>
+                                        <th>Related Address</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tx-history-body">
+                                    <!-- Transactions injected via JS -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                    <button id="transfer-btn" class="btn primary full-width">Send Transfer</button>
-                </div>
-            </section>
+                </section>
 
-            <!-- History Tab -->
-            <section id="history" class="tab-content fade-in" style="display: none;">
-                <div class="card glass table-card">
-                    <h3>Transaction History</h3>
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Type</th>
-                                <th>Amount (ETH)</th>
-                                <th>Date/Time</th>
-                                <th>Related Party</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tx-history-body">
-                            <!-- Transactions injected via JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-
-            <!-- Admin Panel Tab -->
-            <section id="admin" class="tab-content fade-in" style="display: none;">
-                <div class="card glass admin-stats">
-                    <h3>System Statistics</h3>
+                <!-- Admin Panel Tab -->
+                <section id="admin" class="tab-content fade-in admin-only" style="display: none;">
                     <div class="stat-grid">
-                        <div class="stat-box">
-                            <h4>Total Users</h4>
-                            <p id="total-users-count">0</p>
+                        <div class="stat-box glass">
+                            <div class="stat-icon">👥</div>
+                            <div class="stat-content">
+                                <h4>Total Customers</h4>
+                                <p id="total-users-count" class="gradient-text">0</p>
+                            </div>
                         </div>
-                        <div class="stat-box">
-                            <h4>Contract Balance</h4>
-                            <p id="total-contract-balance">0.00 ETH</p>
+                        <div class="stat-box glass">
+                            <div class="stat-icon">💎</div>
+                            <div class="stat-content">
+                                <h4>Total Value Locked</h4>
+                                <p id="total-contract-balance" class="gradient-text">0.0000</p>
+                                <span class="stat-currency">ETH</span>
+                            </div>
+                        </div>
+                        <div class="stat-box glass">
+                            <div class="stat-icon">📈</div>
+                            <div class="stat-content">
+                                <h4>Total Transactions</h4>
+                                <p id="total-transactions-count" class="gradient-text">0</p>
+                            </div>
                         </div>
                     </div>
-                    <button id="refresh-admin" class="btn secondary mt-2">Refresh Stats</button>
-                </div>
-            </section>
-        </main>
+                    
+                    <div class="card glass table-card mt-2">
+                        <div class="card-header flex-between">
+                            <h3>Global Transaction Ledger</h3>
+                            <button id="refresh-admin" class="btn secondary small">Refresh Ledger</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Type</th>
+                                        <th>Amount</th>
+                                        <th>Date & Time</th>
+                                        <th>Related Party</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-tx-history-body">
+                                    <!-- Global txs injected via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
     </div>
     
-    <!-- Modal for Loading/Receipts -->
+    <!-- Premium Modal -->
     <div id="modal" class="modal">
-        <div class="modal-content glass">
-            <h3 id="modal-title">Processing...</h3>
-            <p id="modal-message">Please wait for the transaction to confirm.</p>
-            <button id="modal-close" class="btn secondary" style="display: none;">Close</button>
+        <div class="modal-backdrop"></div>
+        <div class="modal-content glass-strong scale-in">
+            <div class="modal-loader" id="modal-loader">
+                <div class="spinner"></div>
+            </div>
+            <h3 id="modal-title" class="gradient-text">Processing</h3>
+            <p id="modal-message">Please confirm the transaction in your wallet.</p>
+            <button id="modal-close" class="btn secondary mt-2" style="display: none;">Dismiss</button>
         </div>
     </div>
 

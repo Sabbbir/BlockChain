@@ -132,6 +132,19 @@ function mockIPFSUpload(encryptedBlob, fileName, startTime) {
       // Store in memory for later retrieval
       mockStorage.set(cid, new Uint8Array(data));
 
+      // Store in localStorage to persist across page refreshes
+      try {
+        const dataUrl = await new Promise((res, rej) => {
+          const reader = new FileReader();
+          reader.onload = () => res(reader.result);
+          reader.onerror = rej;
+          reader.readAsDataURL(encryptedBlob);
+        });
+        localStorage.setItem(cid, dataUrl);
+      } catch (e) {
+        console.warn("localStorage quota exceeded or unavailable");
+      }
+
       resolve({
         cid: cid,
         size: data.byteLength,
@@ -144,8 +157,24 @@ function mockIPFSUpload(encryptedBlob, fileName, startTime) {
 function mockIPFSDownload(cid, startTime) {
   return new Promise((resolve, reject) => {
     const delay = 50 + Math.random() * 200;
-    setTimeout(() => {
-      const data = mockStorage.get(cid);
+    setTimeout(async () => {
+      let data = mockStorage.get(cid);
+      
+      // Try falling back to localStorage if not in memory
+      if (!data) {
+        try {
+          const dataUrl = localStorage.getItem(cid);
+          if (dataUrl) {
+             const response = await fetch(dataUrl);
+             const arrayBuffer = await response.arrayBuffer();
+             data = new Uint8Array(arrayBuffer);
+             mockStorage.set(cid, data);
+          }
+        } catch (e) {
+          console.warn("Failed to retrieve from localStorage", e);
+        }
+      }
+
       if (!data) {
         reject(new Error(`Mock IPFS: CID not found: ${cid}`));
         return;

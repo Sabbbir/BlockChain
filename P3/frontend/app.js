@@ -3,6 +3,7 @@ let signer;
 let contract;
 let userAddress;
 let isAdmin = false;
+let isRegistered = false;
 
 // Navigation
 function showTab(tabId) {
@@ -10,9 +11,10 @@ function showTab(tabId) {
     document.getElementById(tabId).style.display = 'block';
     
     document.querySelectorAll('.nav-links li').forEach(el => el.classList.remove('active'));
-    event.currentTarget.classList.add('active');
+    const activeLink = document.querySelector(`.nav-links li[data-tab="${tabId}"]`);
+    if(activeLink) activeLink.classList.add('active');
 
-    if(tabId === 'history' && userAddress) {
+    if(tabId === 'history' && userAddress && isRegistered && !isAdmin) {
         loadHistory();
     }
     if(tabId === 'admin' && isAdmin) {
@@ -22,14 +24,20 @@ function showTab(tabId) {
 
 // Modal Utility
 function showModal(title, message, showClose = false) {
-    document.getElementById('modal').style.display = 'flex';
+    const modal = document.getElementById('modal');
+    modal.style.display = 'flex';
+    // Small timeout to allow display: flex to apply before opacity transition
+    setTimeout(() => modal.classList.add('show'), 10);
+    
     document.getElementById('modal-title').innerText = title;
     document.getElementById('modal-message').innerText = message;
     document.getElementById('modal-close').style.display = showClose ? 'inline-block' : 'none';
 }
 
 function hideModal() {
-    document.getElementById('modal').style.display = 'none';
+    const modal = document.getElementById('modal');
+    modal.classList.remove('show');
+    setTimeout(() => modal.style.display = 'none', 300);
 }
 
 document.getElementById('modal-close').addEventListener('click', hideModal);
@@ -38,6 +46,27 @@ document.getElementById('modal-close').addEventListener('click', hideModal);
 async function init() {
     if (typeof window.ethereum !== 'undefined') {
         document.getElementById('connect-btn').addEventListener('click', connectWallet);
+        
+        // Handle account changes
+        window.ethereum.on('accountsChanged', function (accounts) {
+            window.location.reload();
+        });
+
+        // Handle chain changes
+        window.ethereum.on('chainChanged', function (chainId) {
+            window.location.reload();
+        });
+
+        // Attempt Auto-Connect
+        try {
+            const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+            if (accounts.length > 0) {
+                // User is already connected and unlocked
+                await connectWallet();
+            }
+        } catch (err) {
+            console.log("Auto-connect failed or ignored", err);
+        }
     } else {
         alert("Please install MetaMask to use this application.");
     }
@@ -47,12 +76,28 @@ async function init() {
     document.getElementById('withdraw-btn').addEventListener('click', withdraw);
     document.getElementById('transfer-btn').addEventListener('click', transfer);
     document.getElementById('refresh-admin').addEventListener('click', loadAdminStats);
+    
+    // Add click listeners to nav items
+    document.querySelectorAll('.nav-links li').forEach(li => {
+        li.addEventListener('click', (e) => {
+            const tab = e.currentTarget.getAttribute('data-tab');
+            if(tab) showTab(tab);
+        });
+    });
 }
 
 async function connectWallet() {
     try {
         await window.ethereum.request({ method: 'eth_requestAccounts' });
         provider = new ethers.BrowserProvider(window.ethereum);
+        
+        // Network Check
+        const network = await provider.getNetwork();
+        if (network.chainId !== 1337n && network.chainId !== 31337n) {
+            showModal("Network Error", "Please connect to the Hardhat Localhost network (Chain ID 1337 or 31337) in MetaMask. If you get a 'nonce too high' error later, go to MetaMask Settings -> Advanced -> Clear activity tab data.", true);
+            return;
+        }
+
         signer = await provider.getSigner();
         userAddress = await signer.getAddress();
         
@@ -70,22 +115,42 @@ async function connectWallet() {
 async function checkUserStatus() {
     try {
         const adminAddress = await contract.admin();
+        
+        // Setup UI base on role
+        document.getElementById('app-content').style.display = 'flex';
+        document.getElementById('welcome-overlay').style.display = 'none';
+        
         if (adminAddress.toLowerCase() === userAddress.toLowerCase()) {
             isAdmin = true;
-            document.getElementById('admin-tab').style.display = 'block';
-        }
-
-        const customer = await contract.customers(userAddress);
-        if (!customer.isRegistered) {
-            document.getElementById('registration-section').style.display = 'block';
-            document.getElementById('dashboard').style.display = 'none';
+            document.querySelectorAll('.customer-only').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
+            document.getElementById('role-badge').innerText = "Administrator";
+            document.getElementById('role-badge').className = "role-badge badge-admin";
+            showTab('admin');
         } else {
-            document.getElementById('registration-section').style.display = 'none';
-            document.getElementById('dashboard').style.display = 'block';
-            updateBalance();
+            isAdmin = false;
+            document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+            document.getElementById('role-badge').innerText = "Customer";
+            document.getElementById('role-badge').className = "role-badge badge-customer";
+
+            const customer = await contract.customers(userAddress);
+            if (!customer.isRegistered) {
+                isRegistered = false;
+                document.querySelectorAll('.customer-only').forEach(el => el.style.display = 'none');
+                document.getElementById('registration-section').style.display = 'flex';
+                showTab('registration-section');
+            } else {
+                isRegistered = true;
+                document.querySelectorAll('.customer-only').forEach(el => el.style.display = 'block');
+                document.getElementById('registration-section').style.display = 'none';
+                document.getElementById('user-name-display').innerText = customer.name;
+                updateBalance();
+                showTab('dashboard');
+            }
         }
     } catch (error) {
         console.error("Error checking user status:", error);
+        showModal("Contract Error", "Could not connect to the contract. Is the Hardhat node running and is the contract address correct in config.js?", true);
     }
 }
 
@@ -94,7 +159,7 @@ async function updateBalance() {
     try {
         const balanceWei = await contract.getBalance();
         const balanceEth = ethers.formatEther(balanceWei);
-        document.getElementById('account-balance').innerText = `${parseFloat(balanceEth).toFixed(4)} ETH`;
+        document.getElementById('account-balance').innerText = `${parseFloat(balanceEth).toFixed(4)}`;
     } catch (error) {
         console.error("Error fetching balance:", error);
     }
@@ -106,14 +171,15 @@ async function register() {
     if (!name) return alert("Enter a name");
     
     try {
-        showModal("Processing...", "Sending registration transaction.");
+        showModal("Processing...", "Sending registration transaction...");
         const tx = await contract.registerCustomer(name);
         await tx.wait();
         showModal("Success", "Registered successfully!", true);
         checkUserStatus();
     } catch(error) {
         console.error(error);
-        showModal("Error", "Registration failed.", true);
+        const errorMsg = error.reason || error.message || "Registration failed.";
+        showModal("Error", `${errorMsg} (If you have 0 ETH, you cannot pay for gas. Send ETH from your admin account via MetaMask first!)`, true);
     }
 }
 
@@ -122,7 +188,7 @@ async function deposit() {
     if (!amount || amount <= 0) return alert("Enter valid amount");
 
     try {
-        showModal("Processing...", "Sending deposit transaction.");
+        showModal("Processing...", "Sending deposit transaction...");
         const tx = await contract.deposit({ value: ethers.parseEther(amount) });
         await tx.wait();
         showModal("Success", "Deposit successful!", true);
@@ -130,7 +196,7 @@ async function deposit() {
         updateBalance();
     } catch(error) {
         console.error(error);
-        showModal("Error", "Deposit failed.", true);
+        showModal("Error", "Deposit failed. Check your balance and network.", true);
     }
 }
 
@@ -139,7 +205,7 @@ async function withdraw() {
     if (!amount || amount <= 0) return alert("Enter valid amount");
 
     try {
-        showModal("Processing...", "Sending withdrawal transaction.");
+        showModal("Processing...", "Sending withdrawal transaction...");
         const tx = await contract.withdraw(ethers.parseEther(amount));
         await tx.wait();
         showModal("Success", "Withdrawal successful!", true);
@@ -147,7 +213,7 @@ async function withdraw() {
         updateBalance();
     } catch(error) {
         console.error(error);
-        showModal("Error", "Withdrawal failed.", true);
+        showModal("Error", "Withdrawal failed. Check your balance.", true);
     }
 }
 
@@ -157,7 +223,7 @@ async function transfer() {
     if (!to || !amount) return alert("Enter recipient and amount");
 
     try {
-        showModal("Processing...", "Sending transfer transaction.");
+        showModal("Processing...", "Sending transfer transaction...");
         const tx = await contract.transfer(to, ethers.parseEther(amount));
         await tx.wait();
         showModal("Success", "Transfer successful!", true);
@@ -178,8 +244,13 @@ async function loadHistory() {
 
         const typeMap = ["Deposit", "Withdrawal", "Transfer In", "Transfer Out"];
         const typeClassMap = ["tx-type-deposit", "tx-type-withdraw", "tx-type-deposit", "tx-type-withdraw"];
+        const iconMap = ["↓", "↑", "↓", "↑"];
 
-        // tx is tuple: (uint256 id, address user, uint8 txType, uint256 amount, uint256 timestamp, address relatedParty)
+        if(txs.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 2rem; color: var(--text-muted)">No transactions yet.</td></tr>';
+            return;
+        }
+
         [...txs].reverse().forEach(tx => {
             const tr = document.createElement('tr');
             
@@ -188,10 +259,15 @@ async function loadHistory() {
             const txType = Number(tx[2]);
 
             tr.innerHTML = `
-                <td class="${typeClassMap[txType]}"><strong>${typeMap[txType]}</strong></td>
-                <td>${amount}</td>
-                <td>${date}</td>
-                <td>${tx[5] === ethers.ZeroAddress ? 'N/A' : tx[5].substring(0,8)+'...'}</td>
+                <td>
+                    <div class="tx-type-cell">
+                        <span class="tx-icon ${typeClassMap[txType]}">${iconMap[txType]}</span>
+                        <strong class="${typeClassMap[txType]}">${typeMap[txType]}</strong>
+                    </div>
+                </td>
+                <td class="tx-amount">${amount} ETH</td>
+                <td class="tx-date">${date}</td>
+                <td class="tx-party">${tx[5] === ethers.ZeroAddress ? '-' : tx[5].substring(0,8)+'...' + tx[5].substring(38)}</td>
             `;
             tbody.appendChild(tr);
         });
@@ -205,9 +281,40 @@ async function loadAdminStats() {
     try {
         const customers = await contract.getAllCustomers();
         const contractBalance = await contract.getContractBalance();
+        const transactions = await contract.getAllTransactions();
 
         document.getElementById('total-users-count').innerText = customers.length;
-        document.getElementById('total-contract-balance').innerText = `${ethers.formatEther(contractBalance)} ETH`;
+        document.getElementById('total-contract-balance').innerText = `${parseFloat(ethers.formatEther(contractBalance)).toFixed(4)}`;
+        document.getElementById('total-transactions-count').innerText = transactions.length;
+        
+        // Load All Transactions for Admin
+        const tbody = document.getElementById('admin-tx-history-body');
+        tbody.innerHTML = '';
+        
+        const typeMap = ["Deposit", "Withdrawal", "Transfer In", "Transfer Out"];
+        const typeClassMap = ["tx-type-deposit", "tx-type-withdraw", "tx-type-deposit", "tx-type-withdraw"];
+        
+        if(transactions.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem; color: var(--text-muted)">No transactions recorded in the system.</td></tr>';
+            return;
+        }
+
+        [...transactions].reverse().forEach(tx => {
+            const tr = document.createElement('tr');
+            const date = new Date(Number(tx[4]) * 1000).toLocaleString();
+            const amount = ethers.formatEther(tx[3]);
+            const txType = Number(tx[2]);
+
+            tr.innerHTML = `
+                <td>${tx[1].substring(0,6)}...${tx[1].substring(38)}</td>
+                <td class="${typeClassMap[txType]}">${typeMap[txType]}</td>
+                <td class="tx-amount">${amount} ETH</td>
+                <td class="tx-date">${date}</td>
+                <td class="tx-party">${tx[5] === ethers.ZeroAddress ? '-' : tx[5].substring(0,6)+'...'}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
     } catch(error) {
         console.error("Error loading admin stats:", error);
     }
