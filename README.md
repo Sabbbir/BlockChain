@@ -33,7 +33,3 @@ This repository contains the implementations for the MSc Blockchain Course assig
 - Immutable transaction history and receipts
 - Account balance inquiry and Administrator dashboard
 **Performance Evaluations:** Smart contract deployment cost, Average transaction cost, Gas consumption, Latency (deposit/withdrawal/transfer), Block confirmation time, Throughput (TPS), CPU and Memory usage, and Scalability under different transaction loads.
-
-## Final Submission Requirements for Each Project
-- **Assignment Report:** Maximum 15 pages detailing the problem statement, system architecture, technology stack, smart contracts, and performance evaluation.
-- **Demonstration Video:** A 10-minute video demonstrating the system, its architecture, and performance evaluations (gas cost, latency, throughput, challenges, and future improvements).
